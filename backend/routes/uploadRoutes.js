@@ -1,68 +1,55 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary');
 const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
 
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Use memory storage for hashing before saving
-const storage = multer.memoryStorage();
+// Cloudinary storage — images go directly to your Cloudinary account
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'rent-n-drive/vehicles',      // Organises uploads in a folder
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    transformation: [{ width: 1200, quality: 'auto', fetch_format: 'auto' }],
+    // Use a unique public_id so duplicates are handled by Cloudinary
+    public_id: (req, file) => {
+      const name = path.parse(file.originalname).name.replace(/\s+/g, '-');
+      return `${Date.now()}-${name}`;
+    },
+  },
+});
 
 const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: function (req, file, cb) {
-    const filetypes = /jpeg|jpg|png|webp/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
-
-    if (mimetype && extname) {
-      return cb(null, true);
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const allowed = /jpeg|jpg|png|webp/;
+    const ext = allowed.test(path.extname(file.originalname).toLowerCase());
+    const mime = allowed.test(file.mimetype);
+    if (ext && mime) {
+      cb(null, true);
     } else {
-      cb(new Error('Images Only! Allowed types: jpeg, jpg, png, webp'));
+      cb(new Error('Images only! Allowed: jpeg, jpg, png, webp'));
     }
-  }
+  },
 });
 
 // @route   POST /api/upload
-// @desc    Upload an image and get URL (DEDUPED)
+// @desc    Upload an image to Cloudinary and return the secure URL
 router.post('/', upload.single('image'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    // Calculate SHA-256 hash of the file content for deduplication
-    const hash = crypto.createHash('sha256').update(req.file.buffer).digest('hex');
-    const ext = path.extname(req.file.originalname).toLowerCase();
-    const filename = `${hash}${ext}`;
-    const filePath = path.join(uploadDir, filename);
-    const imageUrl = `/uploads/${filename}`;
-
-    // Check if the exact same image content already exists as a file
-    if (fs.existsSync(filePath)) {
-      return res.status(200).json({
-        message: 'Image already exists, re-using existing file',
-        imageUrl
-      });
-    }
-
-    // Write buffer to disk since it's a new unique file
-    fs.writeFileSync(filePath, req.file.buffer);
-
-    // Return relative URL to the uploaded file
+    // Cloudinary returns the hosted URL in req.file.path
     res.status(200).json({
-      message: 'New image uploaded successfully',
-      imageUrl
+      message: 'Image uploaded successfully',
+      imageUrl: req.file.path,   // Full Cloudinary HTTPS URL
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server upload error', error: error.message });
+    res.status(500).json({ message: 'Upload error', error: error.message });
   }
 });
 

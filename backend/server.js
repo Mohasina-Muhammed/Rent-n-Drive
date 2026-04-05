@@ -9,7 +9,22 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:3000',
+  /\.vercel\.app$/,   // any *.vercel.app subdomain
+];
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    const isAllowed = allowedOrigins.some(o =>
+      typeof o === 'string' ? o === origin : o.test(origin)
+    );
+    if (isAllowed) return callback(null, true);
+    callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 // Routes
@@ -19,8 +34,7 @@ app.use('/api/bookings', require('./routes/bookingRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/upload', require('./routes/uploadRoutes'));
 
-// Static folder for file uploads
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Images are now served via Cloudinary — no local static folder needed
 
 // Database Connection
 const PORT = process.env.PORT || 5000;
