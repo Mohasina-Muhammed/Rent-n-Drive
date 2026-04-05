@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-900: #1e3a8a;
+  
+  --color-secondary-50: #f8fafc;
+  --color-secondary-500: #64748b;
+  --color-secondary-900: #0f172a;
+  
+  --color-accent-500: #f59e0b;
+}
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #0f172a;
+    --primary: #2563eb;
+    --primary-foreground: #ffffff;
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #93c5fd;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: #020817;
+    --foreground: #f8fafc;
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    --card: #0f172a;
+    --card-foreground: #f8fafc;
+    --border: #1e293b;
+    --input: #1e293b;
+    --ring: #1d4ed8;
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Custom premium utilities */
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-lg border border-white/20 dark:bg-slate-900/70 dark:border-slate-800/50 shadow-sm;
+  }
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-xl border border-white/30 dark:bg-slate-900/80 dark:border-white/10 shadow-xl rounded-2xl;
+  }
+  .animate-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+  .animate-slide-up {
+    animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

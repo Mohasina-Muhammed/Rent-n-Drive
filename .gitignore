@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Environment files (NEVER push these - they contain secrets!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Uploaded files (user content)
+backend/uploads/
+
+# Next.js build output
+frontend/.next/
+frontend/out/
+
+# Build output
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Debug scripts (optional - remove if you want to keep these)
+backend/check_db.js
+backend/debug_vehicles.js
+backend/simulate_rejection.js
+backend/update_vehicle_images.js
+backend/verify_dedup.js
