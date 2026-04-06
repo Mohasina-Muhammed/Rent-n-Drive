@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
 import Link from 'next/link';
@@ -13,7 +13,7 @@ function getImageSrc(url) {
   return `${BACKEND_URL}${url}`;
 }
 
-export default function Vehicles() {
+function VehiclesContent() {
   const searchParams = useSearchParams();
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -203,5 +203,13 @@ export default function Vehicles() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function Vehicles() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-outfit text-xl font-bold">Loading vehicles...</div>}>
+      <VehiclesContent />
+    </Suspense>
   );
 }
