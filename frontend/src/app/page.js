@@ -21,8 +21,8 @@ export default function Home() {
         {/* Background Image from Uploads */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="http://localhost:5000/uploads/homebg.jpg" 
-            alt="Background" 
+            src="https://images.unsplash.com/photo-1503376712349-a173879a8342?q=80&w=2000&auto=format&fit=crop" 
+            alt="Premium Fleet Background" 
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px]"></div>
