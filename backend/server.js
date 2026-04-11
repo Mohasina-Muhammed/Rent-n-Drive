@@ -55,6 +55,7 @@ mongoose.connect(MONGO_URI)
   })
   .catch((error) => {
     console.error("❌ MongoDB connection error:", error);
+    process.exit(1);
   });
 // Global Error Handler
 app.use((err, req, res, next) => {
