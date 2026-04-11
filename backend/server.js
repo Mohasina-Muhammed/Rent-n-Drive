@@ -37,7 +37,6 @@ app.use('/api/upload', require('./routes/uploadRoutes'));
 // Images are now served via Cloudinary — no local static folder needed
 
 // Database Connection
-import mongoose from "mongoose";
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
