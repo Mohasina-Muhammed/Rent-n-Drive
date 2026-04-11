@@ -41,6 +41,8 @@ app.use('/api/upload', require('./routes/uploadRoutes'));
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
+console.log("MONGO_URI:", process.env.MONGO_URI);
+
 if (!MONGO_URI) {
   console.error("❌ MONGO_URI is missing");
   process.exit(1);
