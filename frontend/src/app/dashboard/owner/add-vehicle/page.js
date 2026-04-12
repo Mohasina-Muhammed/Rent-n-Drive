@@ -39,13 +39,14 @@ export default function AddVehicle() {
       console.log('Categories fetched:', res.data.length);
       setCategories(res.data);
     } catch (err) {
+      const failedUrl = `${api.defaults.baseURL}/vehicles/categories`;
       console.error('Failed to fetch categories:', {
         message: err.message,
-        url: err.config?.url,
+        url: err.config?.url || failedUrl,
         status: err.response?.status,
         data: err.response?.data
       });
-      setError('Note: Could not load pricing categories. You can still enter prices manually.');
+      setError(`Note: Could not load pricing categories from ${failedUrl}. You can still enter prices manually.`);
     }
   };
 

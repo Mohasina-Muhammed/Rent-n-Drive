@@ -1,7 +1,14 @@
 import axios from 'axios';
 
+let baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+// Ensure baseURL ends with /api and doesn't have duplicate slashes
+if (baseURL && !baseURL.endsWith('/api') && !baseURL.endsWith('/api/')) {
+  baseURL = baseURL.replace(/\/$/, '') + '/api';
+}
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+  baseURL,
 });
 
 // Request interceptor to attach JWT token
