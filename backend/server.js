@@ -38,22 +38,29 @@ app.use('/api/upload', require('./routes/uploadRoutes'));
 // Images are now served via Cloudinary — no local static folder needed
 
 // Database Connection
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/rent-n-drive';
 
-mongoose
-  .connect(MONGO_URI)
+const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI;
+
+console.log("MONGO_URI:", process.env.MONGO_URI);
+
+if (!MONGO_URI) {
+  console.error("❌ MONGO_URI is missing");
+  process.exit(1);
+}
+
+mongoose.connect(MONGO_URI)
   .then(() => {
-    console.log('Connected to MongoDB');
+    console.log("✅ Connected to MongoDB");
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
   })
   .catch((error) => {
-    console.error('MongoDB connection error:', error);
+    console.error("❌ MongoDB connection error:", error.message);
+    console.error(error);
+    process.exit(1);
   });
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
 // Global Error Handler
 app.use((err, req, res, next) => {
   // Handle MongoDB Duplicate Key Error (11000)
