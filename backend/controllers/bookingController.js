@@ -19,8 +19,8 @@ exports.createBooking = async (req, res, next) => {
       return res.status(403).json({ message: 'You cannot book your own vehicle.' });
     }
 
-    if (vehicle.availabilityStatus !== 'Available') {
-      return res.status(400).json({ message: 'Vehicle is not currently available' });
+    if (vehicle.availabilityStatus === 'Maintenance') {
+      return res.status(400).json({ message: 'Vehicle is currently under maintenance and cannot be booked' });
     }
 
     // 1. Check maintenance periods
@@ -100,14 +100,14 @@ exports.updateBookingStatus = async (req, res, next) => {
     await booking.save();
 
     // Sync vehicle availability status based on booking status
+    // No longer setting availability to 'Booked' to allow concurrent bookings for different dates
     const vehicle = await Vehicle.findById(booking.vehicle);
     if (vehicle) {
-      if (status === 'Approved') {
-        vehicle.availabilityStatus = 'Booked';
-      } else if (['Completed', 'Rejected', 'Cancelled'].includes(status)) {
+      if (['Rejected', 'Cancelled'].includes(status) && vehicle.availabilityStatus === 'Booked') {
+        // Fallback to restore Available if it was previously set to Booked by old logic
         vehicle.availabilityStatus = 'Available';
+        await vehicle.save();
       }
-      await vehicle.save();
     }
 
     res.status(200).json({ message: 'Booking updated', booking });
