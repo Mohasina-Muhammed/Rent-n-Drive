@@ -11,6 +11,7 @@ const app = express();
 // Middleware
 const allowedOrigins = [
   'http://localhost:3000',
+  'https://rent-n-drive-taupe.vercel.app',
   /\.vercel\.app$/,   // any *.vercel.app subdomain
 ];
 app.use(cors({

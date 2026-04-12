@@ -34,10 +34,18 @@ export default function AddVehicle() {
 
   const fetchCategories = async () => {
     try {
+      console.log('Fetching categories from:', api.defaults.baseURL + '/vehicles/categories');
       const res = await api.get('/vehicles/categories');
+      console.log('Categories fetched:', res.data.length);
       setCategories(res.data);
     } catch (err) {
-      console.error('Failed to fetch categories');
+      console.error('Failed to fetch categories:', {
+        message: err.message,
+        url: err.config?.url,
+        status: err.response?.status,
+        data: err.response?.data
+      });
+      setError('Note: Could not load pricing categories. You can still enter prices manually.');
     }
   };
 
