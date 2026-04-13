@@ -248,27 +248,21 @@ export default function OwnerDashboard() {
 
                         {/* Actions */}
                         <div className="flex items-center gap-2 shrink-0">
-                          {!hasActive ? (
-                            <button
-                              onClick={() => toggleMaintenance(vehicle._id)}
-                              title={vehicle.availabilityStatus === 'Maintenance' ? 'Mark as Available' : 'Toggle Maintenance Mode'}
-                              className={`text-xs px-3 py-1.5 rounded border font-medium transition-all ${
-                                vehicle.availabilityStatus === 'Maintenance' 
+                          <button
+                            onClick={() => !hasActive && toggleMaintenance(vehicle._id)}
+                            disabled={hasActive}
+                            title={hasActive ? 'Cannot toggle maintenance while vehicle is booked' : (vehicle.availabilityStatus === 'Maintenance' ? 'Mark as Available' : 'Toggle Maintenance Mode')}
+                            className={`text-xs px-3 py-1.5 rounded border font-medium transition-all ${
+                              hasActive
+                                ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
+                                : (vehicle.availabilityStatus === 'Maintenance' 
                                   ? 'bg-amber-600 border-amber-600 text-white hover:bg-amber-700' 
-                                  : 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
-                              }`}
-                            >
-                              {vehicle.availabilityStatus === 'Maintenance' ? '🔧 In Maintenance' : '🛠️ Maintenance'}
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => setActiveTab('bookings')}
-                              className="text-xs px-3 py-1.5 rounded border border-rose-300 text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors font-medium flex items-center gap-1"
-                              title="Vehicle is booked. Click to manage bookings."
-                            >
-                              🚫 Cancel Booking
-                            </button>
-                          )}
+                                  : 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100')
+                            }`}
+                          >
+                            {vehicle.availabilityStatus === 'Maintenance' ? '🔧 In Maintenance' : '🛠️ Maintenance'}
+                          </button>
+
 
                           <Link
                             href={`/dashboard/owner/edit-vehicle/${vehicle._id}`}
