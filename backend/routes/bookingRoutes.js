@@ -8,6 +8,7 @@ router.use(authMiddleware);
 
 router.post('/', bookingController.createBooking);
 router.get('/my-bookings', bookingController.getMyBookings);
-router.put('/:id/status', bookingController.updateBookingStatus);
+router.put('/:id/status', authMiddleware, bookingController.updateBookingStatus);
+router.put('/:id/cancel', authMiddleware, bookingController.cancelBooking);
 
 module.exports = router;

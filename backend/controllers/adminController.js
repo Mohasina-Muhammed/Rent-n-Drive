@@ -2,6 +2,8 @@ const User = require('../models/User');
 const Vehicle = require('../models/Vehicle');
 const Booking = require('../models/Booking');
 const PricingCategory = require('../models/PricingCategory');
+const Message = require('../models/Message');
+
 
 // NEW: Pricing Categories Management
 exports.getAllCategories = async (req, res, next) => {
@@ -206,6 +208,29 @@ exports.getActiveRentals = async (req, res, next) => {
     next(error);
   }
 };
+
+// NEW: Contact Messages
+exports.submitMessage = async (req, res, next) => {
+  try {
+    const { name, email, message } = req.body;
+    const newMessage = new Message({ name, email, message });
+    await newMessage.save();
+    res.status(201).json({ message: 'Message sent successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAllMessages = async (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ message: 'Admin access required' });
+    const messages = await Message.find().sort({ createdAt: -1 });
+    res.status(200).json(messages);
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 // NEW: Block Vehicle for Maintenance
 exports.blockVehicle = async (req, res, next) => {

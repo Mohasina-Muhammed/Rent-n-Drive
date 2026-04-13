@@ -21,4 +21,9 @@ router.get('/categories', adminController.getAllCategories);
 router.post('/categories', adminController.createCategory);
 router.delete('/categories/:id', adminController.deleteCategory);
 
+// Contact Messages
+router.post('/messages', adminController.submitMessage); // Public
+router.get('/messages', adminController.getAllMessages); // Admin only
+
 module.exports = router;
+

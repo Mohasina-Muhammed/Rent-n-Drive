@@ -49,12 +49,19 @@ export default function OwnerDashboard() {
 
   const updateBookingStatus = async (id, status) => {
     try {
-      await api.put(`/bookings/${id}/status`, { status });
+      if (status === 'Cancelled') {
+        if (!confirm('Are you sure you want to cancel this booking?')) return;
+        await api.put(`/bookings/${id}/cancel`);
+      } else {
+        await api.put(`/bookings/${id}/status`, { status });
+      }
       fetchData();
     } catch (error) {
       console.error('Failed to update status', error);
+      alert(error.response?.data?.message || 'Action failed');
     }
   };
+
 
   const handleDelete = async (vehicleId) => {
     setDeleteLoading(true);
@@ -166,13 +173,17 @@ export default function OwnerDashboard() {
             </button>
             <button
               onClick={() => setActiveTab('bookings')}
-              className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'bookings'
+              className={`pb-3 text-sm font-medium border-b-2 transition-colors relative ${activeTab === 'bookings'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
             >
               Booking Requests
+              {bookings.some(b => b.status === 'Pending') && (
+                <span className="absolute -top-1 -right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+              )}
             </button>
+
           </nav>
         </div>
 
@@ -237,17 +248,28 @@ export default function OwnerDashboard() {
 
                         {/* Actions */}
                         <div className="flex items-center gap-2 shrink-0">
-                          <button
-                            onClick={() => toggleMaintenance(vehicle._id)}
-                            title={vehicle.availabilityStatus === 'Maintenance' ? 'Mark as Available' : 'Toggle Maintenance Mode'}
-                            className={`text-xs px-3 py-1.5 rounded border font-medium transition-all ${
-                              vehicle.availabilityStatus === 'Maintenance' 
-                                ? 'bg-amber-600 border-amber-600 text-white hover:bg-amber-700' 
-                                : 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
-                            }`}
-                          >
-                            {vehicle.availabilityStatus === 'Maintenance' ? '🔧 In Maintenance' : '🛠️ Maintenance'}
-                          </button>
+                          {!hasActive ? (
+                            <button
+                              onClick={() => toggleMaintenance(vehicle._id)}
+                              title={vehicle.availabilityStatus === 'Maintenance' ? 'Mark as Available' : 'Toggle Maintenance Mode'}
+                              className={`text-xs px-3 py-1.5 rounded border font-medium transition-all ${
+                                vehicle.availabilityStatus === 'Maintenance' 
+                                  ? 'bg-amber-600 border-amber-600 text-white hover:bg-amber-700' 
+                                  : 'bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100'
+                              }`}
+                            >
+                              {vehicle.availabilityStatus === 'Maintenance' ? '🔧 In Maintenance' : '🛠️ Maintenance'}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => setActiveTab('bookings')}
+                              className="text-xs px-3 py-1.5 rounded border border-rose-300 text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors font-medium flex items-center gap-1"
+                              title="Vehicle is booked. Click to manage bookings."
+                            >
+                              🚫 Cancel Booking
+                            </button>
+                          )}
+
                           <Link
                             href={`/dashboard/owner/edit-vehicle/${vehicle._id}`}
                             className="text-xs px-3 py-1.5 rounded border border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors font-medium"
@@ -344,7 +366,16 @@ export default function OwnerDashboard() {
                             </button>
                           </div>
                         )}
+                        {(booking.status === 'Approved' || booking.status === 'Pending') && (
+                          <button
+                            onClick={() => updateBookingStatus(booking._id, 'Cancelled')}
+                            className="text-[10px] mt-2 text-rose-600 font-bold hover:underline"
+                          >
+                            Cancel Booking
+                          </button>
+                        )}
                         {booking.status === 'Approved' && (
+
                           <button
                             onClick={() => updateBookingStatus(booking._id, 'Completed')}
                             className="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-3 py-1 rounded"

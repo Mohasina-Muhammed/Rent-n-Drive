@@ -1,5 +1,7 @@
 'use client';
 import { useState } from 'react';
+import api from '@/lib/api';
+
 
 export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -9,13 +11,17 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await api.post('/admin/messages', formData);
       setSubmitted(true);
       setFormData({ name: '', email: '', message: '' });
-    }, 1500);
+    } catch (error) {
+      alert('Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   if (submitted) {
     return (

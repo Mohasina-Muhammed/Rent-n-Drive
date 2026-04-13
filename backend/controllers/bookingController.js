@@ -115,3 +115,36 @@ exports.updateBookingStatus = async (req, res, next) => {
     next(error);
   }
 };
+
+// NEW: Cancel Booking (Customer/Owner/Admin)
+exports.cancelBooking = async (req, res, next) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+    // Authorization: Only Customer who booked, Vehicle Owner, or Admin
+    const isCustomer = booking.customer.toString() === req.user.id;
+    const isOwner = booking.owner.toString() === req.user.id;
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isCustomer && !isOwner && !isAdmin) {
+      return res.status(403).json({ message: 'Not authorized to cancel this booking' });
+    }
+
+    if (booking.status === 'Cancelled') {
+      return res.status(400).json({ message: 'Booking is already cancelled' });
+    }
+
+    if (booking.status === 'Completed') {
+      return res.status(400).json({ message: 'Cannot cancel a completed booking' });
+    }
+
+    booking.status = 'Cancelled';
+    await booking.save();
+
+    res.status(200).json({ message: 'Booking cancelled successfully', booking });
+  } catch (error) {
+    next(error);
+  }
+};
+

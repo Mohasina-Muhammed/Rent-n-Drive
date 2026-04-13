@@ -14,7 +14,9 @@ export default function AdminDashboard() {
   const [allVehicles, setAllVehicles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [messages, setMessages] = useState([]);
   const [newCategory, setNewCategory] = useState({ name: '', description: '', baseDaily: '' });
+
   const [maintenanceForm, setMaintenanceForm] = useState({ vehicleId: '', startDate: '', endDate: '', reason: '' });
   const router = useRouter();
 
@@ -54,7 +56,11 @@ export default function AdminDashboard() {
       } else if (activeTab === 'categories') {
         const res = await api.get('/admin/categories');
         setCategories(res.data);
+      } else if (activeTab === 'messages') {
+        const res = await api.get('/admin/messages');
+        setMessages(res.data);
       }
+
     } catch (error) {
       console.error('Error fetching admin data', error);
     } finally {
@@ -552,7 +558,35 @@ export default function AdminDashboard() {
             )}
           </div>
         );
+      case 'messages':
+        return (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+               <h3 className="text-xl font-bold text-slate-900 font-outfit">Contact Messages</h3>
+               <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{messages.length} total</span>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {messages.length === 0 ? (
+                <div className="p-20 text-center text-slate-400">No messages yet.</div>
+              ) : (
+                messages.map(msg => (
+                  <div key={msg._id} className="p-6 hover:bg-slate-50 transition-colors">
+                    <div className="flex justify-between items-start mb-2">
+                       <div>
+                         <span className="font-bold text-slate-900">{msg.name}</span>
+                         <span className="text-slate-400 text-xs ml-2">{msg.email}</span>
+                       </div>
+                       <span className="text-[10px] font-bold text-slate-400 uppercase">{new Date(msg.createdAt).toLocaleString()}</span>
+                    </div>
+                    <p className="text-slate-600 text-sm leading-relaxed">{msg.message}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        );
       default:
+
         return null;
     }
   };
@@ -575,7 +609,9 @@ export default function AdminDashboard() {
               <TabButton label="Maintenance" active={activeTab === 'maintenance'} onClick={() => setActiveTab('maintenance')} />
               <TabButton label="Conflicts" active={activeTab === 'conflicts'} onClick={() => setActiveTab('conflicts')} />
               <TabButton label="Categories" active={activeTab === 'categories'} onClick={() => setActiveTab('categories')} />
+              <TabButton label="Messages" active={activeTab === 'messages'} onClick={() => setActiveTab('messages')} />
             </div>
+
             <button
               onClick={logout}
               className="px-6 py-2.5 bg-white border border-slate-200 rounded-2xl shadow-sm text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all duration-200"

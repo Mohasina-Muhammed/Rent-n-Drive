@@ -92,7 +92,24 @@ export default function UserDashboard() {
                           'bg-red-100 text-red-800'}`}>
                         {booking.status}
                       </span>
+                      {(booking.status === 'Approved' || booking.status === 'Pending') && (
+                        <button 
+                          onClick={async () => {
+                            if (!confirm('Are you sure you want to cancel this booking?')) return;
+                            try {
+                              await api.put(`/bookings/${booking._id}/cancel`);
+                              fetchBookings();
+                            } catch (err) {
+                              alert(err.response?.data?.message || 'Failed to cancel booking');
+                            }
+                          }}
+                          className="mt-2 text-[10px] text-rose-600 font-bold hover:underline"
+                        >
+                          Cancel Booking
+                        </button>
+                      )}
                     </div>
+
                   </div>
                 </li>
               ))
